@@ -8,11 +8,13 @@ The library offers:
 
 ===Note===
 * As per the smtplib documentation, it is recommended to use the "email" package to construct emails for use with smtplib and this library.
-** Python3K smtplib doc page: [[http://docs.python.org/py3k/library/email-examples.html]]
+** Python3K smtplib doc page: [[http://docs.python.org/py3k/library/smtplib.html]]
+** Using email package with smtplib: [[http://docs.python.org/py3k/library/email-examples.html]]
 
 ==Todo==
 * Todo list :P
 * Unit tests
-** Corner/edge-case test
+** Corner/edge-case tests
 ** Unix/Linux testing
 * 3.0 and 3.1 compatability
+* Refactor interface to support direct message sending
