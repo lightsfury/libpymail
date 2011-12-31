@@ -13,4 +13,6 @@ The library offers:
 ==Todo==
 * Todo list :P
 * Unit tests
+** Corner/edge-case test
+** Unix/Linux testing
 * 3.0 and 3.1 compatability
