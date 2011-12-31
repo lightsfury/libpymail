@@ -1,1 +1,1 @@
-from smtp import *
+from .smtp import PyMail

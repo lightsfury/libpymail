@@ -38,7 +38,7 @@ except ImportError:
 			pass
 		def ResetOptions(self):
 			pass
-		def __call__(self):
+		def __call__(self, *pargs, **kargs):
 			pass
 	
 	# No-op on platforms that do not support syslog

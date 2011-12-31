@@ -5,15 +5,35 @@ from .syslog import syslog
 exception_messages = {
 	"DOMAIN_MISSING": "Cannot find specified configuration domain: `%s'.",
 	"DOMAIN_MISSING_HOST": "Specified configuration domain (`%s') missing required `host' field.",
-	"DOMAIN_INVALID_AUTH": "Specified configuration domain (`%s') has an empty authorization section (`%s'). Remove the authorization section or add `user' and `pass' entries to the authorization section."
+	"DOMAIN_INVALID_AUTH": "Specified configuration domain (`%s') has an empty authorization section (`%s'). Remove the authorization section or add `user' and `pass' entries to the authorization section.",
+	"SMTP_EXCEPTION": "Encountered an exception while preparing the SMTP object."
 }
+
+class AttributeDictionary:
+	values = None
+	def __getattr__(self, name):
+		if not self.values:
+			self.values = dict()
+		return self.values[name]
+	
+	def __setattr__(self, name, value):
+		if not self.values:
+			self.__dict__['values'] = dict()
+		self.values[name] = value
+	
+	def __getitem__(self, name):
+		return self.__getattr__(name)
+	
+	def __setitem__(self, name, value):
+		self.__setattr__(name, value)
+	
 
 class PyMail:
 	def __init__(self, **kargs):
-		LoadConfig(**kargs)
+		self.LoadConfig(**kargs)
 	
-	def OpenConnection(self, domain = None, **kargs):
-		info = GetDomainInformation(domain = domain)
+	def Connect(self, domain = None, **kargs):
+		info = self.GetDomainInformation(domain = domain)
 		
 		try:
 			if info.ssl:
@@ -21,10 +41,13 @@ class PyMail:
 			else:
 				smtp = SMTP
 			
-			connection = smtp(host = info.host, port = info.port)
+			#connection = smtp(host = info.host, port = info.port)
+			connection = smtp()
+			connection.connect(host = info.host, port = info.port)
 			
 			if info.auth:
 				connection.login(user = info.auth_user, password = info.auth_pass)
+			return connection
 		except:
 			syslog(exception_messages["SMTP_EXCEPTION"])
 			raise
@@ -33,23 +56,27 @@ class PyMail:
 		if not config_path:
 			config_path = '/etc/pymail.conf'
 		ini = ConfigParser()
-		ini.read(config_path)
+		with open(config_path) as config_file:
+			try:
+				ini.read_file(config_file, config_path)
+			except:
+				ini.readfp(config_file, config_path)
 		
 		if not default_domain and ini.has_option('global', 'default_domain'):
 			default_domain = ini.get('global', 'default_domain')
 		
-		if ini.has_option('logging'):
+		if ini.has_section('logging'):
 			syslog.SetupOptions(ini['logging'])
 		
 		self.config = ini
 		self.default_domain = default_domain
-		pass
 	
 	def GetDomainInformation(self, domain = None):
+		ini = self.config
 		if not domain:
 			domain = self.default_domain
 		domain_auth = domain + ':auth'
-		ret = object()
+		ret = AttributeDictionary()
 		
 		if not ini.has_section(domain):
 			raise ValueError(exception_messages["DOMAIN_MISSING"] % (domain))
@@ -61,7 +88,7 @@ class PyMail:
 		
 		if ini.has_option(domain, 'ssl'):
 			ret.ssl = ini.getboolean(domain, 'ssl')
-		else
+		else:
 			ret.ssl = False
 		
 		if ini.has_option(domain, 'port'):
@@ -84,7 +111,6 @@ class PyMail:
 			ret.auth = False
 		
 		return ret
-		pass
 
 """
 class PyMail:
