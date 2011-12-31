@@ -1,0 +1,15 @@
+LibPyMail is a pure Python3K library that wraps calls to the underlying smtplib package.
+The library offers:
+# Loading SMTP connection and authentication details from an INI config file
+# Handle lower level SMTP operations:
+## Connecting to the SMTP server
+## Passing appropriate authentication details
+# Can use either basic SMTP or SMTP+SSL
+
+===Note===
+* As per the smtplib documentation, it is recommended to use the "email" package to construct emails for use with smtplib and this library.
+** Python3K smtplib doc page: [[http://docs.python.org/py3k/library/email-examples.html]]
+
+==Todo==
+* Todo list :P
+* Unit tests
